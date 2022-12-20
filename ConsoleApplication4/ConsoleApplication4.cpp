@@ -5,10 +5,13 @@
 #include <vector>
 #include <queue>
 #include <windows.h>
+#include <ctime>
 
 using namespace std;
 
 #define matrix vector<vector<int>>
+
+int operationCount = 0;
 
 matrix readMatrix() {
     setlocale(LC_ALL, "Russian");
@@ -25,7 +28,6 @@ matrix readMatrix() {
         cout << "\nВведите рёбра по шаблону (<начальная вершина> <конечная вершина> <длина>): ";
         for (int i = 0; i < linkCount; i++) {
             int start, end, leight;
-            cout << "\n " << i << ": ";
             cin >> start >> end >> leight;
 
             if (start >= pointCount) { throw exception("Недопустимая стартовая точка"); }
@@ -34,6 +36,7 @@ matrix readMatrix() {
             
             graph[start][end] = leight;
             graph[end][start] = leight;
+            operationCount += 2;
         }
 
         return graph;
@@ -58,11 +61,13 @@ vector<bool> graphBreadthFirstSearch(matrix graph) {
             if (graph[currentStart][i] > 0 && !result[i]) {
                 q.push(i);
                 result[i] = true;
+                operationCount += 1;
             }
         }
+        operationCount += 1;
 
     }
-
+    operationCount += 1;
     return result;
 }
 
@@ -74,16 +79,25 @@ void writeResult(vector<bool> result) {
             cout << "Граф не связный";
             return;
         }
+        operationCount++;
     }
+    operationCount++;
     cout << "Граф связный";
 }
 
 int main()
 {
     try {
+        int start = clock();
         matrix graph = readMatrix();
         vector<bool> result = graphBreadthFirstSearch(graph);
         writeResult(result);
+        operationCount+=2;
+        cout << "\n" <<  operationCount;
+        int end = clock(); // засекаем время окончания
+        int t = (end - start) / CLOCKS_PER_SEC;// команда CLOCKS_PER_SEC нужна для перевода результата функции clock в секунды
+
+        cout << "\n Время: " << " " << t; // вывод результата работы на экран
     }
     catch (exception e) {
         HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
